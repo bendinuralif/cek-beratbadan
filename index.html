@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitung Berat Idealmu Disini</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .calculator-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+            border: 1px solid #ddd;
+        }
+
+        .header {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin: 0 15px;
+        }
+
+        .input-group input {
+            width: 80px;
+            padding: 10px;
+            font-size: 1rem;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        .calculate-btn {
+            margin-top: 20px;
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            background-color: #219150;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            background-color: #f4f7f6;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .method-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .method-selector label {
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #2c3e50;
+        }
+
+        .method-selector input {
+            margin-right: 10px;
+        }
+
+        canvas {
+            margin: 20px auto;
+            display: block;
+        }
+
+        /* Footer styling */
+        footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-align: center;
+        }
+
+        footer a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive styling */
+        @media (max-width: 600px) {
+            .calculator-container {
+                width: 90%;
+            }
+
+            .input-group input {
+                width: 100px;
+            }
+
+            .input-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .input-group {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-container">
+    <div class="header">Hitung Berat Idealmu Disini</div>
+
+    <div class="method-selector">
+        <label><input type="radio" name="method" value="Proporsional" checked onclick="toggleMethod()"> Proporsional</label>
+        <label><input type="radio" name="method" value="BMI"onclick="toggleMethod()"> BMI</label>
+    </div>
+
+    <canvas id="speedometer" width="300" height="150"></canvas>
+
+    <div class="input-section">
+        <div class="input-group">
+            <label for="height">Tinggi Badan (cm)</label>
+            <input type="number" id="height" placeholder="cm" min="0">
+        </div>
+        <div class="input-group">
+            <label for="weight">Berat Badan (kg)</label>
+            <input type="number" id="weight" placeholder="kg" min="0">
+        </div>
+    </div>
+
+    <button class="calculate-btn" onclick="calculate()">Hitung!</button>
+
+    <div class="result" id="result">Hasil Anda akan ditampilkan di sini.</div>
+</div>
+
+<!-- Footer -->
+<footer>
+    Dibuat dengan oleh <a href="https://bendinuralif.github.io" target="_blank">@bendi.nr</a><br>
+    Hubungi saya di <a href="mailto:bendinuralif@gmail.com">bendinuralif@gmail.com</a>
+</footer>
+
+<script>
+    function drawSpeedometer(value) {
+        var canvas = document.getElementById("speedometer");
+        var ctx = canvas.getContext("2d");
+
+        // Membersihkan canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Menggambar busur latar belakang
+        ctx.beginPath();
+        ctx.arc(150, 150, 100, Math.PI, 0, false);
+        ctx.lineWidth = 20;
+
+        // Menggambar zona hijau (kurang berat badan)
+        ctx.strokeStyle = "#27ae60";
+        ctx.beginPath();
+        ctx.arc(150, 150, 100, Math.PI, Math.PI * 1.25, false);
+        ctx.stroke();
+
+        // Menggambar zona kuning (ideal)
+        ctx.strokeStyle = "#f1c40f";
+        ctx.beginPath();
+        ctx.arc(150, 150, 100, Math.PI * 1.25, Math.PI * 1.75, false);
+        ctx.stroke();
+
+        // Menggambar zona merah (kelebihan berat badan)
+        ctx.strokeStyle = "#e74c3c";
+        ctx.beginPath();
+        ctx.arc(150, 150, 100, Math.PI * 1.75, 0, false);
+        ctx.stroke();
+
+        // Menggambar jarum
+        var angle = Math.PI + (Math.PI * value / 100); // Mengubah nilai menjadi sudut
+        var panjangJarum = 80;
+        var x = 150 + panjangJarum * Math.cos(angle);
+        var y = 150 + panjangJarum * Math.sin(angle);
+
+        ctx.strokeStyle = "#34495e";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+
+        // Menggambar titik tengah
+        ctx.fillStyle = "#34495e";
+        ctx.beginPath();
+        ctx.arc(150, 150, 10, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function toggleMethod() {
+        document.getElementById('result').textContent = 'Hasil Anda akan ditampilkan di sini.';
+        drawSpeedometer(0); // Atur ulang gauge ke nol
+    }
+
+    function calculate() {
+        var method = document.querySelector('input[name="method"]:checked').value;
+        var height = parseFloat(document.getElementById('height').value);
+        var weight = parseFloat(document.getElementById('weight').value);
+
+        if (height > 0 && weight > 0) {
+            if (method === 'BMI') {
+                calculateBMI(height, weight);
+            } else if (method === 'Proporsional') {
+                calculateProportional(height, weight);
+            }
+        } else {
+            alert('Silakan masukkan nilai tinggi dan berat badan yang valid.');
+        }
+    }
+
+    function calculateBMI(height, weight) {
+    var heightInMeters = height / 100;
+    var bmi = weight / (heightInMeters * heightInMeters);
+    var category = "";
+    var motivationText = "";
+
+    // Menentukan kategori BMI
+    if (bmi < 18.5) {
+        category = "Berat badan kurang";
+        motivationText = "Sepertinya kamu bisa makan lebih banyak! Saatnya nambah nasi lagi! 🍚😄";
+    } else if (bmi >= 18.5 && bmi <= 24.9) {
+        category = "Berat badan normal";
+        motivationText = "Wah, kamu berada di jalur yang benar! Terus jaga keseimbangan ya, jangan terlalu sering ngemil. 🚴‍♂️👌";
+    } else if (bmi >= 25 && bmi <= 29.9) {
+        category = "Berat badan berlebih";
+        motivationText = "Ups, mungkin saatnya mengurangi snack tengah malam. Tapi tenang, kamu tetap keren! 🍕😅";
+    } else {
+        category = "Obesitas";
+        motivationText = "Kamu masih luar biasa, tapi mungkin mulai perlu bilang 'no' ke makanan cepat saji. Ayo, semangat! 🏃‍♂️💪";
+    }
+
+    // Tampilkan hasil dan motivasi
+    var resultText = 'BMI Anda: ' + bmi.toFixed(2) + '<br>Kategori: ' + category;
+    document.getElementById('result').innerHTML = resultText + "<br><br>" + motivationText;
+
+    // Update gauge
+    var pointerValue = Math.min(Math.max(bmi / 50 * 100, 0), 100); // Skala BMI ke dalam rentang 0-100
+    drawSpeedometer(pointerValue);
+}
+
+
+function calculateProportional(height, weight) {
+    var weightTable = {
+        157: {min: 51, max: 64},
+        160: {min: 52, max: 66},
+        162: {min: 54, max: 67},
+        165: {min: 55, max: 69},
+        168: {min: 56, max: 72},
+        170: {min: 58, max: 73},
+        173: {min: 60, max: 75},
+        175: {min: 62, max: 77},
+        178: {min: 64, max: 79},
+        180: {min: 66, max: 81},
+        183: {min: 67, max: 83},
+        185: {min: 68, max: 84},
+        188: {min: 71, max: 86},
+        190: {min: 73, max: 88},
+        193: {min: 75, max: 91}
+    };
+
+    var resultText = "Tinggi badan tidak ditemukan di tabel.";
+    var motivationText = "";
+    var pointerValue = 0;
+
+    if (weightTable[height]) {
+        var minWeight = weightTable[height].min;
+        var maxWeight = weightTable[height].max;
+
+        if (weight < minWeight) {
+            resultText = 'Berat badan Anda kurang. Rentang ideal: ' + minWeight + ' - ' + maxWeight + ' kg.';
+            pointerValue = (weight / minWeight) * 20; // Posisi jarum dalam zona hijau (0-20%)
+            motivationText = "Cepetan tambah berat badan, sebelum diterbangin angin! 🦅😂";
+        } else if (weight > maxWeight) {
+            resultText = 'Berat badan Anda berlebih. Rentang ideal: ' + minWeight + ' - ' + maxWeight + ' kg.';
+            pointerValue = 80 + ((weight - maxWeight) / maxWeight) * 20; // Posisi jarum di zona merah (80-100%)
+            motivationText = "Wah, udah mulai susah nyari baju yang pas, ya? Yuk, kurangi sedikit makan malamnya! 🍔🤣";
+        } else {
+            resultText = 'Berat badan Anda ideal! Rentang ideal: ' + minWeight + ' - ' + maxWeight + ' kg.';
+            pointerValue = 20 + ((weight - minWeight) / (maxWeight - minWeight)) * 60; // Posisi jarum dalam zona kuning (20-80%)
+            motivationText = "Wow, berat badan kamu pas banget! Nggak usah pindah-pindah channel lagi, tetap di jalur sehat ini! 🚀👌";
+        }
+    } else {
+        // Interpolasi jika tinggi badan tidak ditemukan dalam tabel
+        var lowerHeight = 0, upperHeight = 0;
+        for (var key in weightTable) {
+            if (height > key) lowerHeight = key;
+            if (height < key && upperHeight === 0) upperHeight = key;
+        }
+
+        if (lowerHeight && upperHeight) {
+            var lowerMin = weightTable[lowerHeight].min;
+            var upperMin = weightTable[upperHeight].min;
+            var lowerMax = weightTable[lowerHeight].max;
+            var upperMax = weightTable[upperHeight].max;
+
+            // Interpolasi linier sederhana
+            var minIdealWeight = lowerMin + (upperMin - lowerMin) * ((height - lowerHeight) / (upperHeight - lowerHeight));
+            var maxIdealWeight = lowerMax + (upperMax - lowerMax) * ((height - lowerHeight) / (upperHeight - lowerHeight));
+
+            if (weight < minIdealWeight) {
+                resultText = 'Berat badan Anda kurang. Rentang ideal: ' + minIdealWeight.toFixed(1) + ' - ' + maxIdealWeight.toFixed(1) + ' kg.';
+                pointerValue = (weight / minIdealWeight) * 20; // Posisi jarum dalam zona hijau (0-20%)
+                motivationText = "Jangan sampai hilang di angin, yuk tambahin dikit lagi berat badannya! 😄";
+            } else if (weight > maxIdealWeight) {
+                resultText = 'Berat badan Anda berlebih. Rentang ideal: ' + minIdealWeight.toFixed(1) + ' - ' + maxIdealWeight.toFixed(1) + ' kg.';
+                pointerValue = 80 + ((weight - maxIdealWeight) / maxIdealWeight) * 20; // Posisi jarum di zona merah (80-100%)
+                motivationText = "Ups! Jangan sampai donat malam menyerang lagi, yuk semangat kurangi camilannya! 🍩😉";
+            } else {
+                resultText = 'Berat badan Anda ideal! Rentang ideal: ' + minIdealWeight.toFixed(1) + ' - ' + maxIdealWeight.toFixed(1) + ' kg.';
+                pointerValue = 20 + ((weight - minIdealWeight) / (maxIdealWeight - minIdealWeight)) * 60; // Zona ideal (20%-80%)
+                motivationText = "Yay! Berat badan kamu ideal! Pertahankan, ya! 🏆👏";
+            }
+        } else {
+            resultText = "Tinggi badan tidak ditemukan dalam tabel.";
+            motivationText = "Maaf, kami tidak memiliki data untuk tinggi badan ini. Yuk, coba hitung dengan metode BMI!";
+        }
+    }
+
+    // Tampilkan hasil dan motivasi di elemen result
+    document.getElementById('result').innerHTML = resultText + "<br><br>" + motivationText;
+    drawSpeedometer(pointerValue);
+}
+
+
+
+    // Gambar gauge awal
+    drawSpeedometer(0);
+</script>
+
+</body>
+</html>
